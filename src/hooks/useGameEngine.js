@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { MAP_TILES, TILE_SIZE, NPC_SPAWNS, BUILDING_DOORS, PLAYER_SPAWN } from '../data/mapData'
 
 const STORAGE_KEY_PLAYER = 'taskboard-player'
@@ -27,6 +27,8 @@ export function useGameEngine() {
     }
   })
   const [facing, setFacing] = useState('down')
+  const stepCountRef = useRef(0)
+  const [stepCount, setStepCount] = useState(0)
   const moveCooldown = useRef(false)
 
   // Persist player position
@@ -51,6 +53,11 @@ export function useGameEngine() {
       next.y = Math.max(0, Math.min(14, next.y))
       // Check collision
       if (!isWalkable(getTile(next.x, next.y))) return prev
+      // Increment step count on successful move
+      if (next.x !== prev.x || next.y !== prev.y) {
+        stepCountRef.current += 1
+        setStepCount(stepCountRef.current)
+      }
       return next
     })
   }, [])
@@ -86,5 +93,16 @@ export function useGameEngine() {
     Math.abs(d.tileX - playerPos.x) <= 1 && Math.abs(d.tileY - playerPos.y) <= 1
   ) ?? null
 
-  return { playerPos, facing, nearbyNPC, nearbyBuilding, currentDoor, movePlayer }
+  // Camera follow: centre player in a 15×11 viewport
+  const CAM_W = 15
+  const CAM_H = 11
+  const MAP_W = 20
+  const MAP_H = 15
+  const cameraOffset = useMemo(() => {
+    const camX = Math.max(0, Math.min(MAP_W - CAM_W, playerPos.x - Math.floor(CAM_W / 2)))
+    const camY = Math.max(0, Math.min(MAP_H - CAM_H, playerPos.y - Math.floor(CAM_H / 2)))
+    return { x: camX, y: camY }
+  }, [playerPos])
+
+  return { playerPos, facing, nearbyNPC, nearbyBuilding, currentDoor, movePlayer, stepCount, cameraOffset }
 }

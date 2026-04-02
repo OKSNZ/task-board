@@ -206,8 +206,10 @@ function drawNPC(ctx, npc, sprite) {
   }
 }
 
-function drawPlayer(ctx, px, py, facing) {
+function drawPlayer(ctx, px, py, facing, stepCount = 0) {
   const s = TILE_SIZE
+  const frame = stepCount % 2
+  const headBob = frame === 0 ? 0 : -1
 
   // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.2)'
@@ -220,10 +222,11 @@ function drawPlayer(ctx, px, py, facing) {
   ctx.fillRect(px + 9, py + s - 5, 5, 4)
   ctx.fillRect(px + s - 14, py + s - 5, 5, 4)
 
-  // Legs / trousers
+  // Legs / trousers - walk cycle
+  const legOffset = frame === 0 ? 3 : -3
   ctx.fillStyle = '#3848a8'
-  ctx.fillRect(px + 9, py + 20, 5, 8)
-  ctx.fillRect(px + s - 14, py + 20, 5, 8)
+  ctx.fillRect(px + 9, py + 20, 5, 8 + (frame === 0 ? 0 : legOffset))
+  ctx.fillRect(px + s - 14, py + 20, 5, 8 + (frame === 0 ? legOffset : 0))
 
   // Body (jacket)
   ctx.fillStyle = '#2860c8'
@@ -244,32 +247,32 @@ function drawPlayer(ctx, px, py, facing) {
   ctx.fillRect(px + 3, armY + 7, 5, 4)
   ctx.fillRect(px + s - 8, armY + 7, 5, 4)
 
-  // Neck + face
+  // Neck + face (with head bob)
   ctx.fillStyle = '#f8c898'
-  ctx.fillRect(px + s / 2 - 4, py + 10, 8, 6)  // neck
-  ctx.fillRect(px + s / 2 - 5, py + 5, 10, 10) // face
+  ctx.fillRect(px + s / 2 - 4, py + 10 + headBob, 8, 6)  // neck
+  ctx.fillRect(px + s / 2 - 5, py + 5 + headBob, 10, 10) // face
 
   // Hair under cap (visible from sides)
   ctx.fillStyle = '#301808'
-  ctx.fillRect(px + s / 2 - 5, py + 9, 3, 4)  // left sideburn
-  ctx.fillRect(px + s / 2 + 2, py + 9, 3, 4)  // right sideburn
+  ctx.fillRect(px + s / 2 - 5, py + 9 + headBob, 3, 4)  // left sideburn
+  ctx.fillRect(px + s / 2 + 2, py + 9 + headBob, 3, 4)  // right sideburn
 
   // Cap
   ctx.fillStyle = '#d82818'
-  ctx.fillRect(px + s / 2 - 7, py + 1, 14, 8)  // cap body
+  ctx.fillRect(px + s / 2 - 7, py + 1 + headBob, 14, 8)  // cap body
   // Cap brim (front only, not for 'up' facing)
   if (facing !== 'up') {
     ctx.fillStyle = '#b01808'
-    ctx.fillRect(px + s / 2 - 9, py + 7, 18, 3)
+    ctx.fillRect(px + s / 2 - 9, py + 7 + headBob, 18, 3)
   }
   // Cap button
   ctx.fillStyle = '#f0f0f0'
-  ctx.fillRect(px + s / 2 - 1, py + 1, 2, 2)
+  ctx.fillRect(px + s / 2 - 1, py + 1 + headBob, 2, 2)
 
   // Eyes (only visible facing down/left/right)
   if (facing !== 'up') {
     ctx.fillStyle = '#101010'
-    const eyeY = py + 10
+    const eyeY = py + 10 + headBob
     if (facing === 'down') {
       ctx.fillRect(px + s / 2 - 4, eyeY, 3, 2)
       ctx.fillRect(px + s / 2 + 1, eyeY, 3, 2)
@@ -291,7 +294,7 @@ function drawPlayer(ctx, px, py, facing) {
 
 // -- Main component --
 
-export default function GameCanvas({ playerPos, facing, projects }) {
+export default function GameCanvas({ playerPos, facing, projects, stepCount = 0, cameraOffset = { x: 0, y: 0 } }) {
   const canvasRef = useRef(null)
   const spritesRef = useRef({})   // id -> HTMLImageElement
   const [spritesLoaded, setSpritesLoaded] = useState(0)
@@ -309,21 +312,26 @@ export default function GameCanvas({ playerPos, facing, projects }) {
   }, [])
 
   // Redraw canvas whenever state changes
+  const VIEWPORT_W = 15
+  const VIEWPORT_H = 11
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     ctx.imageSmoothingEnabled = false  // keep pixel art crisp
 
-    const W = 20 * TILE_SIZE
-    const H = 15 * TILE_SIZE
+    const W = VIEWPORT_W * TILE_SIZE
+    const H = VIEWPORT_H * TILE_SIZE
     ctx.clearRect(0, 0, W, H)
 
-    // Draw base tiles
+    // Draw base tiles (only visible viewport)
     MAP_TILES.forEach((row, y) => {
+      if (y < cameraOffset.y || y >= cameraOffset.y + VIEWPORT_H) return
       row.forEach((tile, x) => {
-        const px = x * TILE_SIZE
-        const py = y * TILE_SIZE
+        if (x < cameraOffset.x || x >= cameraOffset.x + VIEWPORT_W) return
+        const px = (x - cameraOffset.x) * TILE_SIZE
+        const py = (y - cameraOffset.y) * TILE_SIZE
         switch (tile) {
           case 'T': drawTree(ctx, px, py); break
           case 'P':
@@ -334,22 +342,46 @@ export default function GameCanvas({ playerPos, facing, projects }) {
       })
     })
 
-    // Draw buildings on top of tiles
-    BUILDING_DOORS.forEach(door => drawBuilding(ctx, door))
+    // Draw buildings on top of tiles (only if visible)
+    BUILDING_DOORS.forEach(door => {
+      const bx = door.tileX - 1
+      const by = door.tileY - 2
+      // Building spans 3 wide, 3 tall (2 wall rows + door row)
+      if (bx + 3 < cameraOffset.x || bx >= cameraOffset.x + VIEWPORT_W) return
+      if (by + 3 < cameraOffset.y || by >= cameraOffset.y + VIEWPORT_H) return
+      // Temporarily adjust door coords for camera offset drawing
+      const offsetDoor = {
+        ...door,
+        tileX: door.tileX - cameraOffset.x,
+        tileY: door.tileY - cameraOffset.y,
+      }
+      drawBuilding(ctx, offsetDoor)
+    })
 
-    // Draw NPCs
-    NPC_SPAWNS.forEach(npc => drawNPC(ctx, npc, spritesRef.current[npc.id] ?? null))
+    // Draw NPCs (only if visible)
+    NPC_SPAWNS.forEach(npc => {
+      if (npc.tileX < cameraOffset.x || npc.tileX >= cameraOffset.x + VIEWPORT_W) return
+      if (npc.tileY < cameraOffset.y || npc.tileY >= cameraOffset.y + VIEWPORT_H) return
+      const offsetNpc = {
+        ...npc,
+        tileX: npc.tileX - cameraOffset.x,
+        tileY: npc.tileY - cameraOffset.y,
+      }
+      drawNPC(ctx, offsetNpc, spritesRef.current[npc.id] ?? null)
+    })
 
     // Draw player on top of everything
-    drawPlayer(ctx, playerPos.x * TILE_SIZE, playerPos.y * TILE_SIZE, facing)
+    const playerPx = (playerPos.x - cameraOffset.x) * TILE_SIZE
+    const playerPy = (playerPos.y - cameraOffset.y) * TILE_SIZE
+    drawPlayer(ctx, playerPx, playerPy, facing, stepCount)
 
-  }, [playerPos, facing, projects, spritesLoaded])
+  }, [playerPos, facing, projects, spritesLoaded, stepCount, cameraOffset])
 
   return (
     <canvas
       ref={canvasRef}
-      width={20 * TILE_SIZE}
-      height={15 * TILE_SIZE}
+      width={15 * TILE_SIZE}
+      height={11 * TILE_SIZE}
       className="block max-w-full mx-auto"
       style={{ imageRendering: 'pixelated' }}
     />
