@@ -182,13 +182,17 @@ function drawNPC(ctx, npc, sprite) {
   const cy = npc.tileY * s
 
   if (sprite) {
+    // Draw at 2× tile size, centred on the NPC tile
+    const size = s * 2
+    const ox = cx + s / 2 - size / 2
+    const oy = cy + s / 2 - size / 2
     // Draw shadow
     ctx.fillStyle = 'rgba(0,0,0,0.25)'
     ctx.beginPath()
-    ctx.ellipse(cx + s / 2, cy + s - 3, 10, 4, 0, 0, Math.PI * 2)
+    ctx.ellipse(cx + s / 2, cy + s - 2, 16, 5, 0, 0, Math.PI * 2)
     ctx.fill()
-    // Draw Pokemon sprite scaled to fit tile
-    ctx.drawImage(sprite, cx + 2, cy, s - 4, s - 4)
+    // Draw Pokémon sprite at 2× size
+    ctx.drawImage(sprite, ox, oy, size, size)
   } else {
     // Fallback: coloured circle with initial
     ctx.fillStyle = '#e07b39'
