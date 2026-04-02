@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background-color: #1a1a2e;
+  color: white;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* XP flash animation */
+@keyframes xpFlash {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1);
+  }
+}
+
+.xp-flash {
+  animation: xpFlash 1s ease-out forwards;
+  pointer-events: none;
+}
+
+/* XP bar shine */
+@keyframes barShine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.xp-bar-fill {
+  background: linear-gradient(90deg, #cc0000 0%, #ff4444 50%, #cc0000 100%);
+  background-size: 200% 100%;
+  animation: barShine 3s ease-in-out infinite;
+}
+
+/* Task completion flash */
+@keyframes taskComplete {
+  0% { background-color: rgba(34, 197, 94, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.task-just-completed {
+  animation: taskComplete 0.6s ease-out;
+}
+
+/* Pokemon sprite bounce */
+@keyframes pokeBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.poke-sprite:hover { animation: pokeBounce 0.5s ease-in-out; }
+
+/* Battle flash */
+@keyframes battleFlash {
+  0%, 100% { background: transparent; }
+  40%, 60% { background: rgba(255,255,255,0.9); }
+}
+.battle-flash { animation: battleFlash 0.4s ease-in-out; }
+
+/* Battle entrance */
+@keyframes battleSlideIn {
+  0% { transform: translateY(-30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.battle-slide-in { animation: battleSlideIn 0.3s ease-out; }
+
+/* Battle XP bar fill */
+@keyframes battleXPFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+.battle-xp-fill { animation: battleXPFill 0.8s ease-out 1.2s forwards; }
+
+/* Evolution glow */
+@keyframes evolutionGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(3) saturate(0); }
+}
+.evolution-glow { animation: evolutionGlow 0.3s ease-in-out 5; }
+
+/* Village star twinkle */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.star-twinkle { animation: twinkle 2s ease-in-out infinite; }
+
+/* Village window glow pulse */
+@keyframes windowGlow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.window-glow { animation: windowGlow 3s ease-in-out infinite; }
+
+/* Village Pokemon float */
+@keyframes pokeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.poke-float { animation: pokeFloat 2s ease-in-out infinite; }
+
+/* Drag handle */
+.drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Dragging state */
+.dragging {
+  opacity: 0.5;
+}
+
+/* Breakdown spinner */
+@keyframes breakSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.break-spin { animation: breakSpin 0.6s linear infinite; }
+
+/* Dialogue slide up */
+@keyframes dialogueSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.dialogue-slide-up { animation: dialogueSlideUp 0.2s ease-out; }
+
+/* Battle victory pulse */
+@keyframes victoryPulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.battle-victory { animation: victoryPulse 1s ease-in-out infinite; }
+
+/* GameBoy frame */
+.gameboy-frame {
+  background: #b0b8c0;
+  border-radius: 12px 12px 40px 12px;
+  padding: 16px 16px 24px;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.6);
+  display: inline-block;
+  max-width: 100%;
+}
+.gameboy-screen {
+  position: relative;
+  background: #0a1a0a;
+  border: 4px solid #202820;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .xp-flash,
+  .xp-bar-fill,
+  .task-just-completed,
+  .poke-sprite:hover,
+  .battle-flash,
+  .battle-slide-in,
+  .battle-xp-fill,
+  .evolution-glow,
+  .star-twinkle,
+  .window-glow,
+  .poke-float,
+  .break-spin,
+  .dialogue-slide-up,
+  .battle-victory {
+    animation: none;
+  }
+}
