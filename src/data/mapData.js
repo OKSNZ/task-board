@@ -3,35 +3,35 @@
 // Buildings in two rows (y=1-3 and y=4-6 and y=7-9), paths between
 
 export const MAP_TILES = [
-  // Row 0: tree border across the top
+  // Row 0: tree border
   ['T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T'],
-  // Row 1: building walls row 1 (top of buildings)
-  ['T','W','W','W','W','T','T','W','W','W','W','T','T','W','W','W','W','T','T','T'],
-  // Row 2: building walls row 1 (NPCs + windows)
-  ['T','W','N','W','W','T','T','W','W','W','W','T','T','W','N','W','W','T','T','T'],
-  // Row 3: doors for row 1 buildings
+  // Row 1: top building walls (3 buildings, gaps at cols 5-6 and 12-13)
+  ['T','W','W','W','W','G','G','W','W','W','W','G','G','W','W','W','W','G','T','T'],
+  // Row 2: building walls with NPCs in gaps
+  ['T','W','N','W','W','G','G','W','W','W','W','G','G','W','N','W','W','G','T','T'],
+  // Row 3: path + doors for top buildings
   ['T','P','P','D','P','P','P','P','P','D','P','P','P','P','P','D','P','P','T','T'],
-  // Row 4: building walls row 2 (top)
-  ['T','W','W','W','W','T','T','W','W','W','W','T','T','W','W','W','W','T','T','T'],
-  // Row 5: building walls row 2 (NPC)
-  ['T','W','N','W','W','T','T','W','W','W','W','T','T','W','W','W','W','T','T','T'],
-  // Row 6: doors for row 2 buildings
+  // Row 4: middle building walls (gaps at same columns)
+  ['T','W','W','W','W','G','G','W','W','W','W','G','G','W','W','W','W','G','T','T'],
+  // Row 5: middle building walls with NPCs
+  ['T','W','N','W','W','G','G','W','W','W','W','G','G','W','W','W','W','G','T','T'],
+  // Row 6: path + doors for middle buildings
   ['T','P','P','D','P','P','P','P','P','D','P','P','P','P','P','D','P','P','T','T'],
-  // Row 7: building walls row 3 (top)
-  ['T','W','W','W','W','T','T','G','G','G','G','G','G','G','G','G','G','G','T','T'],
-  // Row 8: building walls row 3 (NPC + professor)
-  ['T','W','N','W','W','T','T','G','G','G','N','G','G','G','G','G','G','G','T','T'],
-  // Row 9: doors for row 3 + player spawn area
+  // Row 7: bottom buildings left only, open right side
+  ['T','W','W','W','W','G','G','G','G','G','G','G','G','G','G','G','G','G','T','T'],
+  // Row 8: bottom building walls + professor NPC in open area
+  ['T','W','N','W','W','G','G','G','G','G','N','G','G','G','G','G','G','G','T','T'],
+  // Row 9: path + door for bottom building + player spawn
   ['T','P','P','D','P','P','P','P','P','P','S','P','P','P','P','P','P','P','T','T'],
-  // Row 10: open grass area / village square
+  // Row 10: open village square
   ['T','G','G','P','G','G','G','G','P','P','P','P','P','G','G','G','G','G','T','T'],
-  // Row 11: grass with paths
+  // Row 11: grass paths
   ['T','G','G','P','G','G','G','G','P','G','G','G','P','G','G','G','G','G','T','T'],
-  // Row 12: grass
+  // Row 12: lower paths
   ['T','G','G','P','P','P','P','P','P','G','G','G','P','P','P','P','G','G','T','T'],
-  // Row 13: grass with trees
+  // Row 13: open grass
   ['T','T','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','T','T','T'],
-  // Row 14: tree border across the bottom
+  // Row 14: tree border
   ['T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T'],
 ]
 

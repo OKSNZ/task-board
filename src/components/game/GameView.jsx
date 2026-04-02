@@ -78,13 +78,16 @@ export default function GameView({
             trainerPokemon={trainerPokemon}
           />
 
-          {/* Interact hint */}
+          {/* Interact hint — clickable button */}
           {(nearbyNPC || nearbyBuilding) && !dialogue && !battle && (
-            <div className="absolute top-2 left-2 bg-black/80 border border-poke-yellow/40 rounded px-2 py-1">
+            <button
+              onClick={handleInteract}
+              className="absolute top-2 left-2 bg-black/80 border border-poke-yellow/40 rounded px-2 py-1 cursor-pointer hover:bg-poke-yellow/10"
+            >
               <span className="font-pixel text-poke-yellow text-[8px]">
-                {nearbyBuilding?.locked ? 'LOCKED' : 'SPACE / A to interact'}
+                {nearbyBuilding?.locked ? '🔒 LOCKED' : '▶ ENTER / TALK'}
               </span>
-            </div>
+            </button>
           )}
 
           {/* Dialogue overlay */}
