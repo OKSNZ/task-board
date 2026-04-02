@@ -10,9 +10,24 @@ import { NPC_DIALOGUES, POKEMON_CENTRE_DIALOGUE } from '../../data/npcData'
 export default function GameView({
   projects, level, xpInLevel, xpToNextLevel, streak, trainerPokemon, onCompleteTask
 }) {
-  const { playerPos, facing, nearbyNPC, nearbyBuilding, movePlayer } = useGameEngine()
+  const { playerPos, facing, nearbyNPC, nearbyBuilding, currentDoor, movePlayer } = useGameEngine()
   const [dialogue, setDialogue] = useState(null)
   const [battle, setBattle] = useState(null)
+
+  // Auto-enter building when player steps onto a door tile (Pokémon-style)
+  useEffect(() => {
+    if (!currentDoor || dialogue || battle) return
+    if (currentDoor.locked) {
+      setDialogue({ lines: ['This building is locked.', 'Come back when the blockers are resolved.'] })
+      return
+    }
+    if (currentDoor.projectId === null) {
+      setDialogue({ lines: POKEMON_CENTRE_DIALOGUE })
+      return
+    }
+    const project = projects.find(p => p.id === currentDoor.projectId)
+    if (project) setBattle(project)
+  }, [currentDoor])
 
   const handleInteract = useCallback(() => {
     if (dialogue) return

@@ -71,14 +71,20 @@ export function useGameEngine() {
     return () => window.removeEventListener('keydown', handler)
   }, [movePlayer])
 
-  // Derived: what is nearby (within 1 tile Manhattan distance)
-  const nearbyNPC = NPC_SPAWNS.find(n =>
+  // Exact door match — player is standing on this building's door tile
+  const currentDoor = BUILDING_DOORS.find(d =>
+    d.tileX === playerPos.x && d.tileY === playerPos.y
+  ) ?? null
+
+  // NPC within 1 tile (only when NOT on a door tile, so buildings take priority)
+  const nearbyNPC = currentDoor ? null : NPC_SPAWNS.find(n =>
     Math.abs(n.tileX - playerPos.x) + Math.abs(n.tileY - playerPos.y) <= 1
   ) ?? null
 
-  const nearbyBuilding = BUILDING_DOORS.find(d =>
+  // Building within 1 tile (fallback for SPACE interaction when adjacent)
+  const nearbyBuilding = currentDoor ?? BUILDING_DOORS.find(d =>
     Math.abs(d.tileX - playerPos.x) <= 1 && Math.abs(d.tileY - playerPos.y) <= 1
   ) ?? null
 
-  return { playerPos, facing, nearbyNPC, nearbyBuilding, movePlayer }
+  return { playerPos, facing, nearbyNPC, nearbyBuilding, currentDoor, movePlayer }
 }
